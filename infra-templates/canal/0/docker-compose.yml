@@ -1,11 +1,11 @@
 version: '2'
 services:
-  calico:
-    image: calico/node:v1.0.2
+  canal_cni:
+    image: canal_cni:latest
     privileged: true
     network_mode: host
     depends_on:
-      - calico-etcd
+      - canal-etcd
     labels:
       io.rancher.sidekicks: cni-driver
       io.rancher.scheduler.global: 'true'
@@ -14,7 +14,7 @@ services:
       - /var/run/calico:/var/run/calico:rw
       - /var/log/calico:/var/log/calico:rw
     environment:
-      ETCD_ENDPOINTS: 'http://calico-etcd.calico.rancher.internal:2379'
+      ETCD_ENDPOINTS: 'http://canal-etcd.canal.rancher.internal:2379'
       IP_AUTODETECT_METHOD: 'can-reach=www.google.com'
   cni-driver:
     privileged: true
@@ -24,21 +24,34 @@ services:
     network_mode: host
     pid: host
     labels:
-      io.rancher.network.cni.binary: 'calico'
+      io.rancher.network.cni.binary: 'canal_cni'
       io.rancher.container.dns: 'true'
-  calicoctl:
-    image: calico/ctl:v1.0.2
+  canal-agent:
+    image: canal-agent:latest
     network_mode: host
     entrypoint:
       - /bin/sh
     environment:
-      ETCD_ENDPOINTS: 'http://calico-etcd.calico.rancher.internal:2379'
+      ETCD_ENDPOINTS: 'http://canal-etcd.canal.rancher.internal:2379'
     stdin_open: true
     tty: true
     labels:
       io.rancher.container.pull_image: always
       io.rancher.container.dns: 'true'
-  calico-etcd:
+
+  canal-controller:
+    image: canal-controller:v1.0.2
+    network_mode: host
+    entrypoint:
+      - /bin/sh
+    environment:
+      ETCD_ENDPOINTS: 'http://canal-etcd.canal.rancher.internal:2379'
+    stdin_open: true
+    tty: true
+    labels:
+      io.rancher.container.pull_image: always
+      io.rancher.container.dns: 'true'
+  canal-etcd:
     image: quay.io/coreos/etcd:v3.0.14
     network_mode: host
     labels:
@@ -46,6 +59,6 @@ services:
     command:
       - etcd
       - -advertise-client-urls
-      - http://calico-etcd.calico.rancher.internal:2379
+      - http://canal-etcd.canal.rancher.internal:2379
       - -listen-client-urls
       - http://0.0.0.0:2379,http://0.0.0.0:4001

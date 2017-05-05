@@ -1,0 +1,9 @@
+name: Canal
+description: |
+  A Virtual Networking for container
+version: v1.0.2        # Keep this in sync with ican tag version
+category: Networking
+projectURL: https://www.huawei.org/
+license: Apache License, Version 2.0
+labels:
+  io.rancher.certified: rancher
