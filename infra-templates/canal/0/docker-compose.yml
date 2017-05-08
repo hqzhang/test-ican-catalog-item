@@ -18,7 +18,7 @@ services:
       IP_AUTODETECT_METHOD: 'can-reach=www.google.com'
   cni-driver:
     privileged: true
-    image: calico/cni:v1.5.6
+    image: canal_cni:latest
     command: sh
     tty: true
     network_mode: host
@@ -52,7 +52,7 @@ services:
       io.rancher.container.pull_image: always
       io.rancher.container.dns: 'true'
   canal-etcd:
-    image: quay.io/coreos/etcd:v3.0.14
+    image: etcd:latest
     network_mode: host
     labels:
       io.rancher.container.dns: 'true'
