@@ -15,4 +15,4 @@ ican:
         log_level: info
         etcd_endpoints: http://canal-etcd.canal.rancher.internal:2379
         ipam:
-          type: canal-ipam
+          type: host-local
