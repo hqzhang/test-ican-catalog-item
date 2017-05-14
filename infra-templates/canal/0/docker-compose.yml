@@ -23,39 +23,37 @@ services:
     volumes:
       - /run/canal/plugins:/run/canal/plugins
       - /var/run/netns:/var/run/netns
+      - /var/run/openvswitch/:/var/run/openvswitch/
     environment:
       ETCD_ENDPOINTS: 'http://calico-etcd.calico.rancher.internal:2379'
       IP_AUTODETECT_METHOD: 'can-reach=www.google.com'
+
   canal-controller:
     image: canal-controller
-    links:
-      - canal-etcd
-    labels:
+    network_mode: host
+    environment:
+      ETCD_ENDPOINTS: 'http://calico-etcd.calico.rancher.internal:2379'
+    stdin_open: true 
+    tty: true
+    labels: 
       io.rancher.container.pull_image: always
       io.rancher.container.dns: 'true'
-    command:
-      - /opt/bin/canal-controller
-      - -SelfStoreEndpoint
-      - ${IP}:4003
-      - -AgentsStoreEndpoint
-      - ${IP}:4003
-      - -KubeServerAddr
+    command: 
+      - /opt/bin/canal-controller 
+      - -SelfStoreEndpoint 
+      - ${IP}:4003 
+      - -AgentsStoreEndpoint 
+      - ${IP}:4003 
+      - -KubeServerAddr 
       - ${IP}:8000
     volumes:
       - /etc/cni/net.d/:/etc/cni/net.d/
       - /etc/canal/template/:/etc/canal/template/
       - /etc/canal/AppChain/:/etc/canal/AppChain/
-    environment:
-      ETCD_ENDPOINTS: 'http://calico-etcd.calico.rancher.internal:2379'
-    stdin_open: true
-    tty: true
 
   cni-driver:
     privileged: true
     image: canal_cni
-    labels:
-      io.rancher.network.cni.binary: 'canal_cni'
-      io.rancher.container.dns: 'true'
     command: sh
     tty: true
     network_mode: host
