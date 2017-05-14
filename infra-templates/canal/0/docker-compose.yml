@@ -26,18 +26,20 @@ services:
     environment:
       ETCD_ENDPOINTS: 'http://calico-etcd.calico.rancher.internal:2379'
       IP_AUTODETECT_METHOD: 'can-reach=www.google.com'
-
   canal-controller:
     image: canal-controller
     links:
       - canal-etcd
-    command: 
-      - /opt/bin/canal-controller 
-      - -SelfStoreEndpoint 
-      - ${IP}:4003 
-      - -AgentsStoreEndpoint 
-      - ${IP}:4003 
-      - -KubeServerAddr 
+    labels:
+      io.rancher.container.pull_image: always
+      io.rancher.container.dns: 'true'
+    command:
+      - /opt/bin/canal-controller
+      - -SelfStoreEndpoint
+      - ${IP}:4003
+      - -AgentsStoreEndpoint
+      - ${IP}:4003
+      - -KubeServerAddr
       - ${IP}:8000
     volumes:
       - /etc/cni/net.d/:/etc/cni/net.d/
@@ -47,13 +49,13 @@ services:
       ETCD_ENDPOINTS: 'http://calico-etcd.calico.rancher.internal:2379'
     stdin_open: true
     tty: true
-    labels:
-      io.rancher.container.pull_image: always
-      io.rancher.container.dns: 'true'
 
   cni-driver:
     privileged: true
     image: canal_cni
+    labels:
+      io.rancher.network.cni.binary: 'canal_cni'
+      io.rancher.container.dns: 'true'
     command: sh
     tty: true
     network_mode: host
@@ -64,6 +66,7 @@ services:
 
   canal-etcd:
     image: quay.io/coreos/etcd:v3.0.14
+    network_mode: host
     command: 
       - etcd 
       - --name 
@@ -78,5 +81,3 @@ services:
       - http://${IP}:4003 
       - --advertise-client-urls 
       - http://${IP}:4003
-    network_mode: host
-
