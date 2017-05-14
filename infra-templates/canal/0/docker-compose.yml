@@ -1,24 +1,59 @@
 version: '2'
 services:
-  canal_cni:
-    image: canal_cni:latest
-    privileged: true
+  canal-agent:
+    image: canal-agent
     network_mode: host
     depends_on:
       - canal-etcd
+    volumes_from:
+      - cni-driver
     labels:
       io.rancher.sidekicks: cni-driver
       io.rancher.scheduler.global: 'true'
       io.rancher.container.dns: 'true'
+    pid: host
+    command: 
+      - /opt/bin/canal-agent 
+      - -debug=true 
+      - -SelfStoreEndpoint 
+      - ${IP}:4003 
+      - -ControllerStoreEndpoint 
+      - ${IP}:4003
+    privileged: true
     volumes:
-      - /var/run/calico:/var/run/calico:rw
-      - /var/log/calico:/var/log/calico:rw
+      - /run/canal/plugins:/run/canal/plugins
+      - /var/run/netns:/var/run/netns
     environment:
-      ETCD_ENDPOINTS: 'http://canal-etcd.canal.rancher.internal:2379'
+      ETCD_ENDPOINTS: 'http://calico-etcd.calico.rancher.internal:2379'
       IP_AUTODETECT_METHOD: 'can-reach=www.google.com'
+
+  canal-controller:
+    image: canal-controller
+    links:
+      - canal-etcd
+    command: 
+      - /opt/bin/canal-controller 
+      - -SelfStoreEndpoint 
+      - ${IP}:4003 
+      - -AgentsStoreEndpoint 
+      - ${IP}:4003 
+      - -KubeServerAddr 
+      - ${IP}:8000
+    volumes:
+      - /etc/cni/net.d/:/etc/cni/net.d/
+      - /etc/canal/template/:/etc/canal/template/
+      - /etc/canal/AppChain/:/etc/canal/AppChain/
+    environment:
+      ETCD_ENDPOINTS: 'http://calico-etcd.calico.rancher.internal:2379'
+    stdin_open: true
+    tty: true
+    labels:
+      io.rancher.container.pull_image: always
+      io.rancher.container.dns: 'true'
+
   cni-driver:
     privileged: true
-    image: calico/cni:v1.5.6
+    image: canal_cni
     command: sh
     tty: true
     network_mode: host
@@ -26,39 +61,22 @@ services:
     labels:
       io.rancher.network.cni.binary: 'canal_cni'
       io.rancher.container.dns: 'true'
-  canal-agent:
-    image: canal-agent:latest
-    network_mode: host
-    entrypoint:
-      - /bin/sh
-    environment:
-      ETCD_ENDPOINTS: 'http://canal-etcd.canal.rancher.internal:2379'
-    stdin_open: true
-    tty: true
-    labels:
-      io.rancher.container.pull_image: always
-      io.rancher.container.dns: 'true'
 
-  canal-controller:
-    image: canal-controller:v1.0.2
-    network_mode: host
-    entrypoint:
-      - /bin/sh
-    environment:
-      ETCD_ENDPOINTS: 'http://canal-etcd.canal.rancher.internal:2379'
-    stdin_open: true
-    tty: true
-    labels:
-      io.rancher.container.pull_image: always
-      io.rancher.container.dns: 'true'
   canal-etcd:
     image: quay.io/coreos/etcd:v3.0.14
+    command: 
+      - etcd 
+      - --name 
+      - center 
+      - --initial-cluster 
+      - center=http://${IP}:7003 
+      - --initial-advertise-peer-urls 
+      - http://${IP}:7003 
+      - --listen-peer-urls 
+      - http://${IP}:7003 
+      - --listen-client-urls 
+      - http://${IP}:4003 
+      - --advertise-client-urls 
+      - http://${IP}:4003
     network_mode: host
-    labels:
-      io.rancher.container.dns: 'true'
-    command:
-      - etcd
-      - -advertise-client-urls
-      - http://canal-etcd.canal.rancher.internal:2379
-      - -listen-client-urls
-      - http://0.0.0.0:2379,http://0.0.0.0:4001
+
