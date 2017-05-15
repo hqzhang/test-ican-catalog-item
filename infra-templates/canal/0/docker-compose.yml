@@ -29,25 +29,9 @@ services:
       IP_AUTODETECT_METHOD: 'can-reach=www.google.com'
 
   canal-controller:
-    image: canal-agent
-    network_mode: host
-    environment:
-      ETCD_ENDPOINTS: 'http://calico-etcd.calico.rancher.internal:2379'
-    labels: 
-      io.rancher.container.pull_image: always
-      io.rancher.container.dns: 'true'
-    command: 
-      - /opt/bin/canal-controller 
-      - -SelfStoreEndpoint 
-      - ${IP}:4003 
-      - -AgentsStoreEndpoint 
-      - ${IP}:4003 
-      - -KubeServerAddr 
-      - ${IP}:8000
-    volumes:
-      - /etc/cni/net.d/:/etc/cni/net.d/
-      - /etc/canal/template/:/etc/canal/template/
-      - /etc/canal/AppChain/:/etc/canal/AppChain/
+    image: ubuntu
+    command: sh
+     
 
   cni-driver:
     privileged: true
