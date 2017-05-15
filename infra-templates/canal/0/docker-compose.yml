@@ -50,6 +50,9 @@ services:
     privileged: true
     image: canal_cni
     command: sh
+    volumes:
+      - rancher-cni-driver:/opt/cni/ 
+      - rancher-cni-driver:/etc/cni/
     tty: true
     network_mode: host
     pid: host
