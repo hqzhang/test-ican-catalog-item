@@ -51,8 +51,8 @@ services:
     image: canal_cni
     command: sh
     volumes:
-      - rancher-cni-driver:/opt/cni/ 
-      - rancher-cni-driver:/etc/cni/
+      - rancher-cni-driver:/etc/cni/ 
+      - rancher-cni-driver:/opt/cni/
     tty: true
     network_mode: host
     pid: host
