@@ -31,7 +31,7 @@ services:
   canal-controller:
     image: ubuntu
     network_mode: host
-    command: sh
+    command: sleep 10000000
      
 
   cni-driver:
