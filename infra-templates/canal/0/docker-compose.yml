@@ -29,7 +29,7 @@ services:
       IP_AUTODETECT_METHOD: 'can-reach=www.google.com'
 
   canal-controller:
-    image: canal-controller:wq
+    image: canal-controller
     network_mode: host
     command:
       - /opt/bin/canal-controller
