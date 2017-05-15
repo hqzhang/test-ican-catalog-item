@@ -30,6 +30,7 @@ services:
 
   canal-controller:
     image: ubuntu
+    network_mode: host
     command: sh
      
 
