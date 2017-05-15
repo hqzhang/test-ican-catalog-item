@@ -29,7 +29,7 @@ services:
       IP_AUTODETECT_METHOD: 'can-reach=www.google.com'
 
   canal-controller:
-    image: canal-controller
+    image: canal-agent
     network_mode: host
     environment:
       ETCD_ENDPOINTS: 'http://calico-etcd.calico.rancher.internal:2379'
