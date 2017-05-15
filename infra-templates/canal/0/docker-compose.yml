@@ -29,9 +29,16 @@ services:
       IP_AUTODETECT_METHOD: 'can-reach=www.google.com'
 
   canal-controller:
-    image: ubuntu
+    image: canal-controller:wq
     network_mode: host
-    command: sleep 10000000
+    command:
+      - /opt/bin/canal-controller
+      - -SelfStoreEndpoint
+      - ${IP}:4003
+      - -AgentsStoreEndpoint
+      - ${IP}:4003
+      - -KubeServerAddr
+      - ${IP}:8000
      
 
   cni-driver:
