@@ -33,8 +33,6 @@ services:
     network_mode: host
     environment:
       ETCD_ENDPOINTS: 'http://calico-etcd.calico.rancher.internal:2379'
-    stdin_open: true 
-    tty: true
     labels: 
       io.rancher.container.pull_image: always
       io.rancher.container.dns: 'true'
