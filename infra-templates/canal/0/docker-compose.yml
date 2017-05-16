@@ -49,9 +49,9 @@ services:
   cni-driver:
     privileged: true
     image: canal_cni
-    command: cp -r /opt/cni/bin /etc/cni
+    command: sh
     volumes:
-      - rancher-cni-driver:/etc/cni/ 
+      - rancher-cni-driver:/opt/cni/
     tty: true
     network_mode: host
     pid: host
