@@ -1,6 +1,6 @@
 .catalog:
   name: "Canal"
-  version: "v1.0.2"    # Keep this in sync with ican tag version
+  version: "v0.1.0"    # Keep this in sync with ican tag version
 
 canal:
   network_driver:
@@ -8,11 +8,19 @@ canal:
     default_network:
       name: canal
       host_ports: true
+      subnets:
+      - network_address: '10.42.0.0/16'
+      dns:
+      - 169.254.169.250
+      dns_search:
+      - rancher.internal
+      
     cni_config:
-      '10-rancher-canal.conf':
+      '10-mynet.conf':
         name: rancher-canal-network
         type: canal_cni
         log_level: info
         etcd_endpoints: http://canal-etcd.canal.rancher.internal:2379
         ipam:
           type: host-local
+
