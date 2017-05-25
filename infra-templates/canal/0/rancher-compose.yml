@@ -19,8 +19,14 @@ canal:
       '10-mynet.conf':
         name: rancher-canal-network
         type: canal_cni
-        log_level: info
-        etcd_endpoints: http://canal-etcd.canal.rancher.internal:2379
+        bridge: docker0
+        bridgeSubnet: '10.42.0.0/16'
+        isDefaultGateway: true
+        hostNat: true
+        haripinMode: true
+        mtu: 1500
+        linkMTUOverhead: 98
         ipam:
           type: host-local
-
+          routes:
+          - dst: 169.254.269.250/32
